@@ -34,7 +34,7 @@ const TaskManagement = () => {
 
 
   const [formData, setFormData] = useState({
-    user:user.id,
+    user:user?.id,
     title: '',
     description: '',
     priority: 'medium',
@@ -85,9 +85,10 @@ const TaskManagement = () => {
 
   const resetForm = () => {
     setFormData({
+      user:user?.id,
       title: '',
       description: '',
-      due_date: '',
+      scheduled_date: '',
       priority: 'medium',
       category: 'work' // Fixed: changed from 'Work' to 'work'
     });
@@ -101,9 +102,10 @@ const TaskManagement = () => {
 
   const openEditModal = (task) => {
     setFormData({
+      user:user.id,
       title: task.title,
       description: task.description || '',
-      due_date: task.due_date,
+      scheduled_date_date: task.scheduled_date,
       priority: task.priority,
       category: task.category
     });
@@ -112,7 +114,7 @@ const TaskManagement = () => {
   };
 
   const handleSubmit = async () => {
-    if (!formData.title.trim() || !formData.due_date) {
+    if (!formData.title.trim() || !formData.scheduled_date) {
       toast.error('Please fill in all required fields');
       return;
     }
@@ -356,7 +358,7 @@ const TaskManagement = () => {
                         {task.title}
                       </h3>
 
-                      {isOverdue(task.due_date) && task.status !== 'completed' && (
+                      {isOverdue(task.scheduled_date) && task.status !== 'completed' && (
                         <span className="ml-2 px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">
                           Overdue
                         </span>
@@ -373,7 +375,7 @@ const TaskManagement = () => {
 
                       <div className="flex items-center text-gray-600">
                         <Calendar className="w-4 h-4 mr-1" />
-                        <span>{formatDate(task.due_date)}</span>
+                        <span>{formatDate(task.scheduled_date)}</span>
                       </div>
 
                       <div className="flex items-center text-gray-600">
@@ -461,8 +463,8 @@ const TaskManagement = () => {
                 </label>
                 <input
                   type="date"
-                  name="due_date"
-                  value={formData.due_date}
+                  name="scheduled_date"
+                  value={formData.scheduled_date}
                   onChange={handleInputChange}
                   required
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
