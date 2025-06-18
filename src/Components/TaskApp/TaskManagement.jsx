@@ -12,7 +12,11 @@ import {
   CheckCircle,
   AlertCircle,
   User,
-  Tag
+  Tag,
+  Clock,
+  XCircle,
+  PlayCircle,
+  ChevronDown
 } from 'lucide-react';
 import axiosInstance from '../../services/interceptor';
 import { toast } from 'react-toastify';
@@ -29,16 +33,17 @@ const TaskManagement = () => {
   const [selectedDate, setSelectedDate] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [showStatusDropdown, setShowStatusDropdown] = useState(null);
   const { user } = useSelector((state) => state.login);
-
-
+  
 
   const [formData, setFormData] = useState({
     user:user?.id,
     title: '',
     description: '',
     priority: 'medium',
-    category: 'work' // Changed to lowercase to match Django model
+    category: 'work',
+    status: 'pending' // Added status to form data
   });
 
   // Updated categories to match Django model choices exactly
@@ -58,6 +63,38 @@ const TaskManagement = () => {
     { value: 'urgent', label: 'Urgent' }
   ];
 
+  // Status options with icons and colors
+  const statusOptions = [
+    { 
+      value: 'pending', 
+      label: 'Pending', 
+      icon: Clock, 
+      color: 'text-yellow-600',
+      bgColor: 'bg-yellow-50 hover:bg-yellow-100'
+    },
+    { 
+      value: 'in_progress', 
+      label: 'In Progress', 
+      icon: PlayCircle, 
+      color: 'text-blue-600',
+      bgColor: 'bg-blue-50 hover:bg-blue-100'
+    },
+    { 
+      value: 'completed', 
+      label: 'Completed', 
+      icon: CheckCircle, 
+      color: 'text-green-600',
+      bgColor: 'bg-green-50 hover:bg-green-100'
+    },
+    { 
+      value: 'cancelled', 
+      label: 'Cancelled', 
+      icon: XCircle, 
+      color: 'text-red-600',
+      bgColor: 'bg-red-50 hover:bg-red-100'
+    }
+  ];
+
   // Fetch tasks from API
   const fetchTasks = async () => {
     try {
@@ -70,6 +107,7 @@ const TaskManagement = () => {
       if (selectedDate) params.append('scheduled_date', selectedDate);
 
       const response = await axiosInstance.get(`/api/tasks/?${params.toString()}`);
+      console.log(tasks,'aaaaaaaaaaaaaaaaaaaaaa')
       setTasks(response.data.results || response.data);
     } catch (error) {
       console.error('Error fetching tasks:', error);
@@ -83,6 +121,18 @@ const TaskManagement = () => {
     fetchTasks();
   }, [searchTerm, filterStatus, filterPriority, selectedDate]);
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showStatusDropdown && !event.target.closest('.status-dropdown')) {
+        setShowStatusDropdown(null);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [showStatusDropdown]);
+
   const resetForm = () => {
     setFormData({
       user:user?.id,
@@ -90,7 +140,8 @@ const TaskManagement = () => {
       description: '',
       scheduled_date: '',
       priority: 'medium',
-      category: 'work' // Fixed: changed from 'Work' to 'work'
+      category: 'work',
+      status: 'pending'
     });
   };
 
@@ -105,9 +156,10 @@ const TaskManagement = () => {
       user:user.id,
       title: task.title,
       description: task.description || '',
-      scheduled_date_date: task.scheduled_date,
+      scheduled_date: task.scheduled_date,
       priority: task.priority,
-      category: task.category
+      category: task.category,
+      status: task.status || 'pending'
     });
     setEditingTask(task);
     setShowModal(true);
@@ -124,10 +176,12 @@ const TaskManagement = () => {
       
       if (editingTask) {
         // Update existing task
-        await axiosInstance.put(`/api/tasks/${editingTask.id}/`, formData);
+        await axiosInstance.put(`/api/tasks/Update/${editingTask.id}/`, formData);
         toast.success('Task successfully updated');
       } else {
         // Create new task
+        console.log('userrrrrrrrrrrrrrrid',user);
+        
         await axiosInstance.post('/api/tasks/', formData);
         toast.success('Task successfully created');
       }
@@ -146,7 +200,7 @@ const TaskManagement = () => {
 
   const handleDelete = async (taskId) => {
     try {
-      await axiosInstance.delete(`/api/tasks/${taskId}/`);
+      await axiosInstance.delete(`/api/tasks/Update/${taskId}/`);
       setShowDeleteConfirm(null);
       fetchTasks(); // Refresh task list
       toast.success('Task deleted successfully');
@@ -156,13 +210,13 @@ const TaskManagement = () => {
     }
   };
 
-  const toggleTaskStatus = async (taskId) => {
+  // Updated function to handle all status changes
+  const updateTaskStatus = async (taskId, newStatus) => {
     try {
-      const task = tasks.find(t => t.id === taskId);
-      const newStatus = task.status === 'completed' ? 'pending' : 'completed';
-      
-      await axiosInstance.patch(`/api/tasks/${taskId}/`, { status: newStatus });
+      await axiosInstance.patch(`/api/tasks/Update/${taskId}/`, { status: newStatus });
+      setShowStatusDropdown(null);
       fetchTasks(); // Refresh task list
+      toast.success('Task status updated successfully');
     } catch (error) {
       console.error('Error updating task status:', error);
       toast.error('Error updating task status. Please try again.');
@@ -179,6 +233,9 @@ const TaskManagement = () => {
   const getPriorityColor = (priority, status) => {
     if (status === 'completed') {
       return 'bg-green-100 text-green-800 border-green-200';
+    }
+    if (status === 'cancelled') {
+      return 'bg-red-100 text-red-800 border-red-200';
     }
     switch (priority) {
       case 'urgent': return 'bg-red-100 text-red-800 border-red-200';
@@ -197,6 +254,10 @@ const TaskManagement = () => {
       case 'low': return <Target className="w-4 h-4" />;
       default: return <Target className="w-4 h-4" />;
     }
+  };
+
+  const getStatusInfo = (status) => {
+    return statusOptions.find(option => option.value === status) || statusOptions[0];
   };
 
   const formatDate = (dateString) => {
@@ -330,81 +391,107 @@ const TaskManagement = () => {
               <p>No tasks found matching your criteria.</p>
             </div>
           ) : (
-            tasks.map(task => (
-              <div key={task.id} className="p-6 hover:bg-gray-50 transition-colors">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center mb-2">
-                      <button
-                        onClick={() => toggleTaskStatus(task.id)}
-                        className={`mr-3 p-1 rounded-full transition-colors ${
+            tasks.map(task => {
+              const statusInfo = getStatusInfo(task.status);
+              const IconComponent = statusInfo.icon;
+              
+              return (
+                <div key={task.id} className="p-6 hover:bg-gray-50 transition-colors">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center mb-2">
+                        {/* Status Dropdown */}
+                        <div className="relative status-dropdown mr-3">
+                          <button
+                            onClick={() => setShowStatusDropdown(showStatusDropdown === task.id ? null : task.id)}
+                            className={`flex items-center px-3 py-1 rounded-lg border-2 transition-colors ${statusInfo.bgColor} ${statusInfo.color} border-current`}
+                          >
+                            <IconComponent className="w-4 h-4 mr-1" />
+                            <span className="text-sm font-medium">{statusInfo.label}</span>
+                            <ChevronDown className="w-3 h-3 ml-1" />
+                          </button>
+                          
+                          {showStatusDropdown === task.id && (
+                            <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-[150px]">
+                              {statusOptions.map(option => {
+                                const OptionIcon = option.icon;
+                                return (
+                                  <button
+                                    key={option.value}
+                                    onClick={() => updateTaskStatus(task.id, option.value)}
+                                    className={`w-full flex items-center px-3 py-2 text-left transition-colors ${
+                                      task.status === option.value 
+                                        ? `${option.bgColor} ${option.color}` 
+                                        : 'hover:bg-gray-50 text-gray-700'
+                                    }`}
+                                  >
+                                    <OptionIcon className="w-4 h-4 mr-2" />
+                                    <span className="text-sm">{option.label}</span>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                        
+                        <h3 className={`text-lg font-semibold ${
                           task.status === 'completed' 
-                            ? 'text-green-600 hover:text-green-700' 
-                            : 'text-gray-400 hover:text-gray-600'
-                        }`}
-                      >
-                        {task.status === 'completed' ? (
-                          <CheckCircle className="w-6 h-6" />
-                        ) : (
-                          <div className="w-6 h-6 border-2 border-gray-300 rounded-full"></div>
+                            ? 'line-through text-gray-500' 
+                            : task.status === 'cancelled'
+                            ? 'line-through text-red-500'
+                            : 'text-gray-900'
+                        }`}>
+                          {task.title}
+                        </h3>
+
+                        {isOverdue(task.scheduled_date) && !['completed', 'cancelled'].includes(task.status) && (
+                          <span className="ml-2 px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">
+                            Overdue
+                          </span>
                         )}
+                      </div>
+
+                      <p className="text-gray-600 mb-3">{task.description}</p>
+
+                      <div className="flex flex-wrap items-center gap-3 text-sm">
+                        <div className={`flex items-center px-3 py-1 rounded-full border ${getPriorityColor(task.priority, task.status)}`}>
+                          {getPriorityIcon(task.priority)}
+                          <span className="ml-1">{getPriorityLabel(task.priority)}</span>
+                        </div>
+
+                        <div className="flex items-center text-gray-600">
+                          <Calendar className="w-4 h-4 mr-1" />
+                          <span>{formatDate(task.scheduled_date)}</span>
+                        </div>
+
+                        <div className="flex items-center text-gray-600">
+                          <Tag className="w-4 h-4 mr-1" />
+                          <span>{getCategoryLabel(task.category)}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-2 ml-4">
+                      <button
+                        onClick={() => openEditModal(task)}
+                        className="p-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
+                        title="Edit Task"
+                      >
+                        <Edit3 className="w-5 h-5" />
                       </button>
                       
-                      <h3 className={`text-lg font-semibold ${
-                        task.status === 'completed' 
-                          ? 'line-through text-gray-500' 
-                          : 'text-gray-900'
-                      }`}>
-                        {task.title}
-                      </h3>
-
-                      {isOverdue(task.scheduled_date) && task.status !== 'completed' && (
-                        <span className="ml-2 px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">
-                          Overdue
-                        </span>
-                      )}
+                      <button
+                        onClick={() => setShowDeleteConfirm(task.id)}
+                        className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                        title="Delete Task"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
                     </div>
-
-                    <p className="text-gray-600 mb-3">{task.description}</p>
-
-                    <div className="flex flex-wrap items-center gap-3 text-sm">
-                      <div className={`flex items-center px-3 py-1 rounded-full border ${getPriorityColor(task.priority, task.status)}`}>
-                        {getPriorityIcon(task.priority)}
-                        <span className="ml-1">{getPriorityLabel(task.priority)}</span>
-                      </div>
-
-                      <div className="flex items-center text-gray-600">
-                        <Calendar className="w-4 h-4 mr-1" />
-                        <span>{formatDate(task.scheduled_date)}</span>
-                      </div>
-
-                      <div className="flex items-center text-gray-600">
-                        <Tag className="w-4 h-4 mr-1" />
-                        <span>{getCategoryLabel(task.category)}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center space-x-2 ml-4">
-                    <button
-                      onClick={() => openEditModal(task)}
-                      className="p-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
-                      title="Edit Task"
-                    >
-                      <Edit3 className="w-5 h-5" />
-                    </button>
-                    
-                    <button
-                      onClick={() => setShowDeleteConfirm(task.id)}
-                      className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
-                      title="Delete Task"
-                    >
-                      <Trash2 className="w-5 h-5" />
-                    </button>
                   </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </div>
@@ -471,7 +558,7 @@ const TaskManagement = () => {
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Priority
@@ -503,6 +590,24 @@ const TaskManagement = () => {
                     {categories.map(category => (
                       <option key={category.value} value={category.value}>
                         {category.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Status
+                  </label>
+                  <select
+                    name="status"
+                    value={formData.status}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none appearance-none bg-white"
+                  >
+                    {statusOptions.map(status => (
+                      <option key={status.value} value={status.value}>
+                        {status.label}
                       </option>
                     ))}
                   </select>

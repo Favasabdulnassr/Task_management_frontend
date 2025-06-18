@@ -25,7 +25,7 @@ function App() {
         <Routes>
           <Route path='/taskApp' element={<TaskApp />} />
           <Route path='/' element={<AuthApp />} />
-        </Routes>
+        </Routes> 
       </CurrentViewProvider>
 
 
