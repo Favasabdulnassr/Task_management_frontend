@@ -1,67 +1,35 @@
-import React, { useState } from 'react';
-import { CheckCircle, Calendar, Target, Clock, ChevronLeft, ChevronRight, Edit, Check, Menu, X } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import axiosInstance from '../../services/interceptor';
 
 const Dashboard = () => {
-  const [tasks, setTasks] = useState([
-    {
-      id: 1,
-      title: 'Complete Project Proposal',
-      description: 'Finish the quarterly project proposal for the client meeting',
-      dueDate: '2025-05-30',
-      priority: 'high',
-      status: 'pending',
-      category: 'Work'
-    },
-    {
-      id: 2,
-      title: 'Team Meeting',
-      description: 'Weekly sync with the development team',
-      dueDate: '2025-05-30',
-      priority: 'medium',
-      status: 'completed',
-      category: 'Meeting'
-    },
-    {
-      id: 3,
-      title: 'Review Code',
-      description: 'Review pull requests from team members',
-      dueDate: '2025-05-30',
-      priority: 'medium',
-      status: 'pending',
-      category: 'Work'
-    },
-    {
-      id: 4,
-      title: 'Grocery Shopping',
-      description: 'Weekly grocery shopping for household items',
-      dueDate: '2025-05-30',
-      priority: 'low',
-      status: 'pending',
-      category: 'Personal'
-    },
-    {
-      id: 5,
-      title: 'Doctor Appointment',
-      description: 'Annual health checkup',
-      dueDate: '2025-05-30',
-      priority: 'high',
-      status: 'pending',
-      category: 'Personal'
-    }
-  ]);
+  
 
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
   const [showTaskModal, setShowTaskModal] = useState(false);
+  const [tasks,setTasks] = useState([])
 
-  const toggleTaskStatus = (taskId) => {
-    setTasks(tasks.map(task => 
-      task.id === taskId 
-        ? { ...task, status: task.status === 'completed' ? 'pending' : 'completed' }
-        : task
-    ));
-  };
+
+  useEffect(()=>{
+    const fetchTasks = async () => {
+      try {
+        const response = await axiosInstance.get(`/api/my-tasks/`)
+        console.log(response.data);
+        
+        setTasks(response.data)
+        scheduled_date
+
+      } catch (error) {
+        console.error('error fetching tasks',error)
+        
+      }
+
+    }
+    fetchTasks()
+  },[])
+
+ 
 
   const getDaysInMonth = (date) => {
     return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
@@ -73,7 +41,7 @@ const Dashboard = () => {
 
   const getTasksForDate = (date) => {
     const dateStr = date.toISOString().split('T')[0];
-    return tasks.filter(task => task.dueDate === dateStr);
+    return tasks.filter(task => task.scheduled_date === dateStr);
   };
 
   const navigateMonth = (direction) => {
@@ -159,20 +127,7 @@ const Dashboard = () => {
                         </span>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-2 mt-3">
-                      <button
-                        className="px-3 py-1 text-xs bg-white bg-opacity-70 text-gray-700 rounded hover:bg-opacity-90 transition-colors"
-                        title="Edit Task"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => toggleTaskStatus(task.id)}
-                        className="px-3 py-1 text-xs bg-white bg-opacity-70 text-gray-700 rounded hover:bg-opacity-90 transition-colors"
-                      >
-                        {task.status === 'completed' ? 'Mark Pending' : 'Mark Done'}
-                      </button>
-                    </div>
+                   
                   </div>
                 ))}
               </div>
@@ -284,7 +239,7 @@ const Dashboard = () => {
   // Get upcoming tasks (non-completed, sorted by date)
   const upcomingTasks = tasks
     .filter(task => task.status !== 'completed')
-    .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+    .sort((a, b) => new Date(a.scheduled_date) - new Date(b.scheduled_date));
 
   return (
     <div className="bg-gray-50 min-h-screen">
@@ -296,7 +251,7 @@ const Dashboard = () => {
           {/* Upcoming Tasks List */}
           <div className="bg-white rounded-lg shadow-lg order-2 lg:order-1">
             <div className="p-3 sm:p-4 border-b bg-gray-50 rounded-t-lg">
-              <h3 className="text-base sm:text-lg font-bold text-gray-900">Upcoming Tasks</h3>
+              <h3 className="text-base sm:text-lg font-bold text-gray-900">Upcoming and Pending Tasks</h3>
             </div>
             <div className="p-3 sm:p-4">
               <div className="space-y-3 max-h-64 sm:max-h-96 overflow-y-auto">
@@ -309,23 +264,10 @@ const Dashboard = () => {
                       <div className="w-2 h-2 rounded-full bg-gray-400 flex-shrink-0"></div>
                       <div className="min-w-0 flex-1">
                         <h4 className="font-medium text-gray-900 text-sm sm:text-base truncate">{task.title}</h4>
-                        <p className="text-xs sm:text-sm text-gray-600">{task.dueDate}</p>
+                        <p className="text-xs sm:text-sm text-gray-600">{task.scheduled_date}</p>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-2 justify-end">
-                      <button
-                        className="px-2 sm:px-3 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
-                        title="Edit Task"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => toggleTaskStatus(task.id)}
-                        className="px-2 sm:px-3 py-1 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200 transition-colors whitespace-nowrap"
-                      >
-                        Mark Done
-                      </button>
-                    </div>
+                   
                   </div>
                 ))}
               </div>

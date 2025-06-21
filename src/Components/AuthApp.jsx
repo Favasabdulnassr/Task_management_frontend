@@ -8,9 +8,7 @@ import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
 const AuthApp = () => {
-  // 'login', 'signup', 'otp', 'verify-otp'
-  const [authMethod, setAuthMethod] = useState('password'); // 'password', 'otp'
-  const [showPassword, setShowPassword] = useState(false);
+  
   const { currentView, setCurrentView } = useCurrentView()
   const { isAuthenticated } = useSelector((state) => state.login);
   const navigate = useNavigate();

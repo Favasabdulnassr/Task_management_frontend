@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { User, Mail, Lock, Save, ArrowLeft, Edit3, CheckCircle, Calendar, Target, Phone, LayoutDashboard, Plus, Search, Bell, Menu, X, LogOut } from 'lucide-react';
+import { User, Target, LayoutDashboard, Search, Bell, Menu, X, LogOut } from 'lucide-react';
 import Dashboard from './Dashboard';
 import ProfilePage from './ProfilePage';
 import TaskManagement from './TaskManagement';

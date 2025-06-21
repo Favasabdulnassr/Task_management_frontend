@@ -11,7 +11,6 @@ import {
   Filter,
   CheckCircle,
   AlertCircle,
-  User,
   Tag,
   Clock,
   XCircle,

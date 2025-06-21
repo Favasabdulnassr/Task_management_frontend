@@ -6,8 +6,7 @@ import { RegisterValidationSchema } from '../services/validation/Register';
 import { BASE_URL } from '../services/constant';
 import { toast } from 'react-toastify';
 import axios from 'axios'
-import { useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+
 
 const SignUpForm = () => {
     const [authMethod, setAuthMethod] = useState('non-otp'); // 'password', 'otp'
