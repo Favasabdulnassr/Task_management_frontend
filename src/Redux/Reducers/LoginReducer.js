@@ -52,14 +52,7 @@ const loginSlice = createSlice({
             state.first_name = action.payload.first_name
             state.last_name = action.payload.last_name
             state.email = action.payload.email
-            state.user = {
-                id:action.payload.user_id,
-                first_name:action.payload.first_name,
-                last_name: action.payload.last_name,
-                email:action.payload.email,
-                phone_number:action.payload.phone_number,
-            }
-           
+            
 
         })
         .addCase(loginAsync.rejected,(state,action)=>{
