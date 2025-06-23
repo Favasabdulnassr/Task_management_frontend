@@ -84,7 +84,13 @@ const loginSlice = createSlice({
             state.email = action.payload.email || state.email
             state.phone_number = action.payload.phone_number || state.phone_number
             state.error = null
-         
+            state.user = {
+                ...state.user, // preserve existing user (especially the id)
+                first_name: action.payload.first_name || state.user?.first_name,
+                last_name: action.payload.last_name || state.user?.last_name,
+                email: action.payload.email || state.user?.email,
+                phone_number: action.payload.phone_number || state.user?.phone_number,
+            };
         })
         .addCase(updateProfileAsync.rejected,(state,action) =>{
         state.loader = false;
