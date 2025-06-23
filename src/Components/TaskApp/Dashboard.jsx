@@ -40,7 +40,7 @@ const Dashboard = () => {
   };
 
   const getTasksForDate = (date) => {
-    const dateStr = date.toISOString().split('T')[0];
+    const dateStr =  date.toLocaleDateString('en-CA'); // returns YYYY-MM-DD in local time
     return tasks.filter(task => task.scheduled_date === dateStr);
   };
 
