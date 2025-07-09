@@ -2,14 +2,14 @@ import axios from "axios";
 import { fetchNewAccessToken } from "./refresh";
 import { logout } from "../Redux/Reducers/LoginReducer";
 
-// const axiosInstance = axios.create({
-//     baseURL: "http://127.0.0.1:8000",
-// });
-
-
 const axiosInstance = axios.create({
-    baseURL: "https://taskmanagement-backend-p04e.onrender.com",
+    baseURL: "http://127.0.0.1:8000",
 });
+
+
+// const axiosInstance = axios.create({
+//     baseURL: "https://taskmanagement-backend-p04e.onrender.com",
+// });
 
 
 // Define a function to handle token refresh and logout

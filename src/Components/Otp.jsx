@@ -5,44 +5,94 @@ import { useNavigate } from 'react-router-dom';
 import { BASE_URL } from '../services/constant';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { useSelector } from 'react-redux';
 
 const VerifyOTPForm = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const { currentView, setCurrentView } = useCurrentView();
   const [otpDigits, setOtpDigits] = useState(['', '', '', '', '', '']);
-  const [timeLeft, setTimeLeft] = useState(0); // Time left in seconds
+  const [timeLeft, setTimeLeft] = useState(0);
+  const [isResending, setIsResending] = useState(false);
+
 
   const inputRefs = useRef([]);
   const navigate = useNavigate();
   const sessionId = localStorage.getItem('session_id');
-  
+
+
+    // Function to start timer
+  const startTimer = (duration) => {
+    setTimeLeft(duration);
+    
+    const timer = setInterval(() => {
+      setTimeLeft((prevTime) => {
+        if (prevTime <= 1) {
+          clearInterval(timer);
+          localStorage.removeItem('otpExpirationTime');
+          console.error('OTP has expired. Please request a new one');
+          return 0;
+        }
+        return prevTime - 1;
+      });
+    }, 1000);
+
+    return timer;
+  };
+
 
   useEffect(() => {
     const expirationTime = localStorage.getItem('otpExpirationTime');
 
     if (expirationTime) {
       const expirationTimestamp = new Date(expirationTime).getTime();
-      const currentTime = expirationTimestamp - 90000;
-      const remainingTime = 85;
+      const currentTime = Date.now();
+      const remainingTime =  Math.max(0, Math.floor((expirationTimestamp - currentTime) / 1000));
+      
       setTimeLeft(remainingTime);
 
-      const timer = setInterval(() => {
-        setTimeLeft((prevTime) => {
-          if (prevTime <= 1) {
-            clearInterval(timer);
-            localStorage.removeItem('otpExpirationTime');
-            toast.error('OTP has expired. Please request a new one');
-            return 0;
-          }
-          return prevTime - 1;
-        });
-      }, 1000);
-
-      return () => clearInterval(timer); // Cleanup on component unmount
+      if (remainingTime > 0) {
+        const timer = startTimer(remainingTime);
+        return () => clearInterval(timer);
+      }
     }
   }, []);
+
+
+  const handleResendOtp = async () => {
+    if (!sessionId) {
+      toast.error("Session ID not found. Please register again.");
+      return;
+    }
+
+    try {
+      setIsResending(true);
+      const response = await axios.post(`${BASE_URL}/user/resend-otp/`, {
+        sessionId: sessionId
+      });
+
+      toast.success(response.data.message);
+
+      setOtpDigits(['', '', '', '', '', '']);
+      setTimeLeft(120);
+
+      localStorage.setItem('otpExpirationTime', response.data.otp_expiration);
+      startTimer(90);
+    } catch (error) {
+      console.error(error);
+      if (error.response) {
+        toast.error(error.response.data.error || "Failed to resend OTP.");
+      } else {
+        toast.error("Something went wrong.");
+      }
+    } finally {
+      setIsResending(false);
+    }
+  };
+
+
+
+
+
 
   const handleOtpChange = (index, value) => {
     // Only allow numbers
@@ -175,15 +225,18 @@ const VerifyOTPForm = () => {
           </button>
 
           {/* Resend Code - Commented out as in original */}
-          {/* <div className="text-center">
+          <div className="text-center">
             <p className="text-gray-600 text-sm mb-2">Didn't receive the code?</p>
             <button
               type="button"
-              className="text-blue-600 hover:text-blue-800 font-medium text-sm"
+              disabled={timeLeft > 0 || isResending}
+              onClick={handleResendOtp}
+              className={`text-blue-600 hover:text-blue-800 font-medium text-sm ${(timeLeft > 0 || isResending) ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
             >
-              Resend Code
+              {isResending ? 'Resending...' : 'Resend Code'}
             </button>
-          </div> */}
+          </div>
         </form>
 
         {/* Back Button */}
