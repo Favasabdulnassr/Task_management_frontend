@@ -71,55 +71,63 @@ A modern, responsive React frontend for the Task Management System that provides
 ## Installation
 
 ### Prerequisites
-- Node.js 16.x or higher
+
+```- Node.js 16.x or higher
 - npm or yarn package manager
+```
 
 ### Setup Instructions
 
 1. **Clone the repository**
-   git clone <repository-url>
-   cd task-management-frontend
+   ```
+   - git clone <repository-url>
+   - cd task-management-frontend
+
    ```
 
 2. **Install dependencies**
-   npm install
-   # or
-   yarn install
+   ```
+   - npm install
+     # or
+   - yarn install
+
    ```
 
    **Main dependencies installed:**
-   - `@reduxjs/toolkit` - Redux state management
-   - `react-redux` - React Redux bindings
-   - `redux-persist` - Redux state persistence
-   - `react-router-dom` - Client-side routing
-   - `axios` - HTTP client
-   - `formik` - Form management
-   - `yup` - Schema validation
-   - `react-toastify` - Toast notifications
-   - `lucide-react` - Icons
-   - `tailwindcss` - Styling framework
+   ```
+      - `@reduxjs/toolkit` - Redux state management
+      - `react-redux` - React Redux bindings
+      - `redux-persist` - Redux state persistence
+      - `react-router-dom` - Client-side routing
+      - `axios` - HTTP client
+      - `formik` - Form management
+      - `yup` - Schema validation
+      - `react-toastify` - Toast notifications
+      - `lucide-react` - Icons
+      - `tailwindcss` - Styling framework
+      
    ```
 
 3. **Environment Configuration**
-   Create a `.env` file in the project root:
-   ```env
-   VITE_API_BASE_URL=http://localhost:8000/api
-   VITE_APP_NAME=Task Management System
-   ```
+   - Create a `.env` file in the project root:
+      ```env
+      VITE_API_BASE_URL= your_base_url
+      
+      ```
 
-4. **Tailwind CSS Setup**
-  Tailwind CSS is included via CDN in the index.html file.
-  No build-time configuration is required.
+3. **Tailwind CSS Setup**
+   ```
+   - Tailwind CSS is included via CDN in the index.html file.
+   - No build-time configuration is required.
+   ```
     
 
 4. **Start Development Server**
-   npm run dev
-   # or
-   yarn dev
+   ```
+   - npm run dev
+     # or
+   - yarn dev
+
    ```
 
-5. **Build for Production**
-   npm run build
-   # or
-   yarn build
-   ```
+
