@@ -108,12 +108,6 @@ A modern, responsive React frontend for the Task Management System that provides
       
    ```
 
-3. **Environment Configuration**
-   - Create a `.env` file in the project root:
-      ```env
-      VITE_API_BASE_URL= your_base_url
-      
-      ```
 
 3. **Tailwind CSS Setup**
    ```
