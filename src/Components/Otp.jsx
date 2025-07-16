@@ -52,7 +52,7 @@ const VerifyOTPForm = () => {
       console.log('currentTime',currentTime);
       
 
-      const remainingTime =  Math.max(Math.floor((expirationTimestamp - currentTime) / 1000));
+      const remainingTime =  Math.max(Math.floor((expirationTimestamp - currentTime) / 1000),120);
       console.log('remainingTime',remainingTime);
       
       
