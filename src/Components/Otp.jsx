@@ -16,7 +16,6 @@ const VerifyOTPForm = () => {
 
 
   const inputRefs = useRef([]);
-  const navigate = useNavigate();
   const sessionId = localStorage.getItem('session_id');
 
 
@@ -45,14 +44,8 @@ const VerifyOTPForm = () => {
     console.log('expirationTime', expirationTime)
 
     if (expirationTime) {
-      const expirationTimestamp = new Date(expirationTime).getTime();
-      console.log('expirationTimeStamp',expirationTime);
       
-      const currentTime = Date.now();
-      console.log('currentTime',currentTime);
-      
-
-      const remainingTime =  Math.max(Math.floor((expirationTimestamp - currentTime) / 1000),120);
+      const remainingTime =  90
       console.log('remainingTime',remainingTime);
       
       
