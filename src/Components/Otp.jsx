@@ -39,32 +39,45 @@ const VerifyOTPForm = () => {
     return timer;
   };
 
+useEffect(() => {
+  const expirationTime = localStorage.getItem('otpExpirationTime');
+  console.log('expirationTime', expirationTime);
 
-  useEffect(() => {
-    const expirationTime = localStorage.getItem('otpExpirationTime');
-    console.log('expirationTime', expirationTime)
-
-    if (expirationTime) {
-      const expirationTimestamp = new Date(expirationTime).getTime();
-      console.log('expirationTimeStamp',expirationTime);
+  if (expirationTime) {
+    // Parse the timestamp properly - handle microseconds
+    let expirationTimestamp;
+    
+    try {
+      // Remove microseconds (keep only milliseconds) for proper parsing
+      const cleanTimestamp = expirationTime.replace(/(\.\d{3})\d+/, '$1');
+      expirationTimestamp = new Date(cleanTimestamp).getTime();
       
-      const currentTime = Date.now();
-      console.log('currentTime',currentTime);
-      
-
-      const remainingTime =  Math.max(0, Math.floor((expirationTimestamp - currentTime) / 1000));
-      console.log('remainingTime',remainingTime);
-      
-      
-      setTimeLeft(remainingTime);
-
-      if (remainingTime > 0) {
-        const timer = startTimer(remainingTime);
-        return () => clearInterval(timer);
+      // Fallback: if that fails, try parsing with microseconds truncated
+      if (isNaN(expirationTimestamp)) {
+        const truncatedTimestamp = expirationTime.substring(0, 23) + 'Z';
+        expirationTimestamp = new Date(truncatedTimestamp).getTime();
       }
+    } catch (error) {
+      console.error('Error parsing expiration time:', error);
+      return;
     }
-  }, []);
+    
+    console.log('expirationTimestamp (parsed):', expirationTimestamp);
+    
+    const currentTime = Date.now();
+    console.log('currentTime:', currentTime);
+    
+    const remainingTime = Math.max(0, Math.floor((expirationTimestamp - currentTime) / 1000));
+    console.log('remainingTime:', remainingTime);
+    
+    setTimeLeft(remainingTime);
 
+    if (remainingTime > 0) {
+      const timer = startTimer(remainingTime);
+      return () => clearInterval(timer);
+    }
+  }
+}, []);
 
   const handleResendOtp = async () => {
     if (!sessionId) {
