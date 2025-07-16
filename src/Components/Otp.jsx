@@ -42,11 +42,19 @@ const VerifyOTPForm = () => {
 
   useEffect(() => {
     const expirationTime = localStorage.getItem('otpExpirationTime');
+    console.log('expirationTime', expirationTime)
 
     if (expirationTime) {
       const expirationTimestamp = new Date(expirationTime).getTime();
+      console.log('expirationTimeStamp',expirationTime);
+      
       const currentTime = Date.now();
+      console.log('currentTime',currentTime);
+      
+
       const remainingTime =  Math.max(0, Math.floor((expirationTimestamp - currentTime) / 1000));
+      console.log('remainingTime',remainingTime);
+      
       
       setTimeLeft(remainingTime);
 
