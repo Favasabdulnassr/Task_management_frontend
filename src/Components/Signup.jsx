@@ -56,7 +56,8 @@ const SignUpForm = () => {
 
                 } else {
                     formik.resetForm()
-                    localStorage.setItem('otpExpirationTime', response.data.otp_expiration);
+                    const expirationTime = Date.now() + 90 * 1000;
+                    localStorage.setItem('otpExpirationTime', expirationTime.toString());
                     localStorage.setItem('session_id', response.data.session_id)
                     toast.success('Enter Six digit otp')
                     setCurrentView('verify-otp')

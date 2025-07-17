@@ -17,9 +17,7 @@ const AuthApp = () => {
   useEffect(() => {
     if (isAuthenticated === true) {
       navigate('/taskApp')
-    } else {
-      navigate('/')
-    }
+    } 
   }, [isAuthenticated])
 
 

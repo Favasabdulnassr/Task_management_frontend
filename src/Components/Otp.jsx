@@ -45,15 +45,15 @@ const VerifyOTPForm = () => {
 
     if (expirationTime) {
       
-      const remainingTime =  90
-      console.log('remainingTime',remainingTime);
+      const remainingTime = Math.floor((parseInt(expirationTime) - Date.now()) / 1000);
       
-      
-      setTimeLeft(remainingTime);
 
       if (remainingTime > 0) {
-        const timer = startTimer(remainingTime);
-        return () => clearInterval(timer);
+        setTimeLeft(remainingTime);
+        const cleanup = startTimer(remainingTime);
+        return () => clearInterval(remainingTime)
+      } else {
+        localStorage.removeItem('otpExpirationTime');
       }
     }
   }, []);
@@ -74,10 +74,10 @@ const VerifyOTPForm = () => {
       toast.success(response.data.message);
 
       setOtpDigits(['', '', '', '', '', '']);
-      setTimeLeft(120);
+      const expirationTime = Date.now() + 90 * 1000; // 90 seconds
+      localStorage.setItem('otpExpirationTime', expirationTime.toString());
+      startTimer(90)
 
-      localStorage.setItem('otpExpirationTime', response.data.otp_expiration);
-      startTimer(90);
     } catch (error) {
       console.error(error);
       if (error.response) {
