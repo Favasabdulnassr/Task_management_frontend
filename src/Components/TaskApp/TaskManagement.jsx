@@ -106,7 +106,6 @@ const TaskManagement = () => {
       if (selectedDate) params.append('scheduled_date', selectedDate);
 
       const response = await axiosInstance.get(`/api/tasks/?${params.toString()}`);
-      console.log(tasks,'aaaaaaaaaaaaaaaaaaaaaa')
       setTasks(response.data.results || response.data);
     } catch (error) {
       console.error('Error fetching tasks:', error);

@@ -236,10 +236,6 @@ const Dashboard = () => {
     );
   };
 
-  // Get upcoming tasks (non-completed, sorted by date)
-  const upcomingTasks = tasks
-    .filter(task => task.status !== 'completed')
-    .sort((a, b) => new Date(a.scheduled_date) - new Date(b.scheduled_date));
 
   return (
     <div className="bg-gray-50 min-h-screen">
@@ -248,31 +244,7 @@ const Dashboard = () => {
       <div className="px-4 sm:px-6">
         {/* Mobile-first layout: Stack on small screens, side-by-side on large */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-          {/* Upcoming Tasks List */}
-          <div className="bg-white rounded-lg shadow-lg order-2 lg:order-1">
-            <div className="p-3 sm:p-4 border-b bg-gray-50 rounded-t-lg">
-              <h3 className="text-base sm:text-lg font-bold text-gray-900">Upcoming and Pending Tasks</h3>
-            </div>
-            <div className="p-3 sm:p-4">
-              <div className="space-y-3 max-h-64 sm:max-h-96 overflow-y-auto">
-                {upcomingTasks.map(task => (
-                  <div
-                    key={task.id}
-                    className="flex flex-col sm:flex-row sm:items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors space-y-2 sm:space-y-0"
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div className="w-2 h-2 rounded-full bg-gray-400 flex-shrink-0"></div>
-                      <div className="min-w-0 flex-1">
-                        <h4 className="font-medium text-gray-900 text-sm sm:text-base truncate">{task.title}</h4>
-                        <p className="text-xs sm:text-sm text-gray-600">{task.scheduled_date}</p>
-                      </div>
-                    </div>
-                   
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+         
 
           {/* Calendar View */}
           <div className="lg:col-span-2 order-1 lg:order-2">
