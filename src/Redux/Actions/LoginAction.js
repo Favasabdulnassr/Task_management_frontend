@@ -22,7 +22,6 @@ export const loginAsync = createAsyncThunk(
             // Return required details
             return {email,first_name,phone_number,last_name,user_id};
         }catch(error){
-            console.error('ssssssuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuui',error)
             return rejectWithValue(error?.message || 'something went wrong');
 
         }

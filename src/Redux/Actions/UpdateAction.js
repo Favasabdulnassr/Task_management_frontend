@@ -7,12 +7,10 @@ export const updateProfileAsync = createAsyncThunk(
         try {
             const response = await axiosInstance.put('/user/profile/update/',profileData);
 
-            console.log('profile updated',response.data)
 
             return response.data
 
         }catch(error){
-            console.error('errerrrrerrrr',error)
             return rejectWithValue(error?.message||'profile update failed');
         }
     }

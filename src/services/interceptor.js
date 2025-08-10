@@ -2,6 +2,7 @@ import axios from "axios";
 import { fetchNewAccessToken } from "./refresh";
 import { logout } from "../Redux/Reducers/LoginReducer";
 import { BASE_URL } from "./constant";
+import { toast } from "react-toastify";
 
 const axiosInstance = axios.create({
     baseURL: BASE_URL,
@@ -55,7 +56,7 @@ export const setupAxiosInterceptors = (dispatch) => {
           // Retry the original request with the new token
           return axiosInstance(originalRequest);
         } catch (error) {
-          console.log("Refresh token is invalid. Logging out...",error);
+          toast.error("Refresh token is invalid. Logging out...",error);
 
    
           dispatch(logout());  

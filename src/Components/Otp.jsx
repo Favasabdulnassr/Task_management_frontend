@@ -28,7 +28,6 @@ const VerifyOTPForm = () => {
         if (prevTime <= 1) {
           clearInterval(timer);
           localStorage.removeItem('otpExpirationTime');
-          console.error('OTP has expired. Please request a new one');
           return 0;
         }
         return prevTime - 1;
@@ -41,7 +40,6 @@ const VerifyOTPForm = () => {
 
   useEffect(() => {
     const expirationTime = localStorage.getItem('otpExpirationTime');
-    console.log('expirationTime', expirationTime)
 
     if (expirationTime) {
       
@@ -79,7 +77,7 @@ const VerifyOTPForm = () => {
       startTimer(90)
 
     } catch (error) {
-      console.error(error);
+      toast.error(error);
       if (error.response) {
         toast.error(error.response.data.error || "Failed to resend OTP.");
       } else {

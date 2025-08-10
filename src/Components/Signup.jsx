@@ -47,7 +47,6 @@ const SignUpForm = () => {
 
                 }
                 const response = await axios.post(BASE_URL + '/user/register/', payload);
-                console.log('reeeeeeeeeeeeeeeeesponnse', response.data);
 
                 if (authMethod === 'non-otp') {
                     toast.success('Account Created successfully')
@@ -64,7 +63,6 @@ const SignUpForm = () => {
 
                 }
             } catch (error) {
-                console.error('Api error:', error);
                 toast.error('Registration failed');
 
             } finally {

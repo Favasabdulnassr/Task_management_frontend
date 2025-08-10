@@ -91,6 +91,13 @@ const TaskManagement = () => {
       icon: XCircle, 
       color: 'text-red-600',
       bgColor: 'bg-red-50 hover:bg-red-100'
+    },
+    {
+      value:'dofuture',
+      label:'DoFuture',
+      icon: CheckCircle,
+      clolor:'text-green-300',
+      bgColor:'bg-green-100 hover:bg-green-200'
     }
   ];
 
