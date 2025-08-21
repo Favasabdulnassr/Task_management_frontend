@@ -14,7 +14,7 @@ const Dashboard = () => {
   useEffect(()=>{
     const fetchTasks = async () => {
       try {
-        const response = await axiosInstance.get(`/api/my-tasks/`)
+        const response = await axiosInstance.get(`/api/users/me/tasks/`)
         console.log(response.data);
         
         setTasks(response.data)

@@ -181,7 +181,7 @@ const TaskManagement = () => {
       
       if (editingTask) {
         // Update existing task
-        await axiosInstance.put(`/api/tasks/Update/${editingTask.id}/`, formData);
+        await axiosInstance.put(`/api/tasks/${editingTask.id}/`, formData);
         toast.success('Task successfully updated');
       } else {
         // Create new task
@@ -205,7 +205,7 @@ const TaskManagement = () => {
 
   const handleDelete = async (taskId) => {
     try {
-      await axiosInstance.delete(`/api/tasks/Update/${taskId}/`);
+      await axiosInstance.delete(`/api/tasks/${taskId}/`);
       setShowDeleteConfirm(null);
       fetchTasks(); // Refresh task list
       toast.success('Task deleted successfully');
@@ -218,7 +218,7 @@ const TaskManagement = () => {
   // Updated function to handle all status changes
   const updateTaskStatus = async (taskId, newStatus) => {
     try {
-      await axiosInstance.patch(`/api/tasks/Update/${taskId}/`, { status: newStatus });
+      await axiosInstance.patch(`/api/tasks/${taskId}/`, { status: newStatus });
       setShowStatusDropdown(null);
       fetchTasks(); // Refresh task list
       toast.success('Task status updated successfully');

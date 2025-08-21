@@ -1,15 +1,16 @@
 import * as Yup from 'yup';
 
 export const RegisterValidationSchema = Yup.object({
-  first_name: Yup.string()
-    .min(2, 'First name must be at least 2 characters')
+    first_name: Yup.string()
+    .min(3, 'First name must be at least 3 characters')
     .max(50, 'First name must be at most 50 characters')
-    .matches(/^\S+$/, 'First name cannot contain spaces')
+    .matches(/^[A-Za-z]+$/, 'First name should only contain letters')
     .when('otp_register', {
       is: false,
       then: (schema) => schema.required('First name is required'),
       otherwise: (schema) => schema.notRequired()
     }),
+  
   
   email: Yup.string()
     .email('Invalid email address')
