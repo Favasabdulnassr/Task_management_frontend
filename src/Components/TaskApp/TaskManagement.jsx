@@ -27,6 +27,7 @@ const TaskManagement = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterPriority, setFilterPriority] = useState('all');
   const [selectedDate, setSelectedDate] = useState('');
@@ -107,7 +108,7 @@ const TaskManagement = () => {
       setLoading(true);
       const params = new URLSearchParams();
       
-      if (searchTerm) params.append('search', searchTerm);
+      if (debouncedSearchTerm) params.append('search', debouncedSearchTerm);
       if (filterStatus !== 'all') params.append('status', filterStatus);
       if (filterPriority !== 'all') params.append('priority', filterPriority);
       if (selectedDate) params.append('scheduled_date', selectedDate);
@@ -121,10 +122,18 @@ const TaskManagement = () => {
     }
   };
 
+  // Debounce search term
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
   // Load tasks on component mount and when filters change
   useEffect(() => {
     fetchTasks();
-  }, [searchTerm, filterStatus, filterPriority, selectedDate]);
+  }, [debouncedSearchTerm, filterStatus, filterPriority, selectedDate]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -290,7 +299,10 @@ const TaskManagement = () => {
     return priority ? priority.label : priorityValue;
   };
 
-  if (loading) {
+  // Initial loading should only block the whole page if we have no data at all
+  const isInitialLoading = loading && tasks.length === 0 && !searchTerm && filterStatus === 'all' && filterPriority === 'all' && !selectedDate;
+
+  if (isInitialLoading) {
     return (
       <div className="p-6 bg-gray-50 min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -389,7 +401,13 @@ const TaskManagement = () => {
           </h2>
         </div>
         
-        <div className="divide-y divide-gray-200">
+        <div className="divide-y divide-gray-200 min-h-[200px] relative">
+          {loading && (
+            <div className="absolute inset-0 bg-white bg-opacity-60 flex items-center justify-center z-10">
+              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+            </div>
+          )}
+          
           {tasks.length === 0 ? (
             <div className="p-8 text-center text-gray-500">
               <Target className="w-12 h-12 mx-auto mb-4 text-gray-300" />
